@@ -1,0 +1,52 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq-container
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672     #amqp
+        - 15672:15672   #prometheus
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    networks:
+        - rabbitmq_go_net
+
+  producerapi:
+    image: ${DOCKER_REGISTRY-}producerapi
+    build:
+      context: .
+      dockerfile: ProducerApi/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      - RMQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
+      - RMQ_PASS=${RABBITMQ_DEFAULT_PASS:-admin}
+      - RMQ_HOST=${RABBITMQ_DEFAULT_HOST:-rabbitmq}
+      - RMQ_PORT=${RABBITMQ_DEFAULT_PORT:-5672}
+    networks:
+        - rabbitmq_go_net
+
+  consumerapp:
+    image: ${DOCKER_REGISTRY-}consumerapp
+    build:
+      context: .
+      dockerfile: ConsumerApp/Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      - RMQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
+      - RMQ_PASS=${RABBITMQ_DEFAULT_PASS:-admin}
+      - RMQ_HOST=${RABBITMQ_DEFAULT_HOST:-rabbitmq}
+      - RMQ_PORT=${RABBITMQ_DEFAULT_PORT:-5672}
+    networks:
+        - rabbitmq_go_net
+
+networks:
+  rabbitmq_go_net:
+    driver: bridge

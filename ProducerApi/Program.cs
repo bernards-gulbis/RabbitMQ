@@ -20,6 +20,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/message", (IMessageProducer messageProducer, string message) => messageProducer.Send(message, "queue_processMessage")).WithName("ProcessMessage");
+app.MapPost("/message", (IMessageProducer messageProducer, string message) => messageProducer.Send(message, "DemoQueue", "DemoExchange", "demo-routing-key")).WithName("ProcessMessage");
 
 app.Run();
