@@ -2,9 +2,14 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
-var factory = new ConnectionFactory();
-factory.Uri = new Uri("amqp://guest:guest@localhost:5672");
-factory.ClientProvidedName = "Consumer App";
+var factory = new ConnectionFactory
+{
+    ClientProvidedName = "Consumer App",
+    UserName = Environment.GetEnvironmentVariable("RMQ_USER"),
+    Password = Environment.GetEnvironmentVariable("RMQ_PASS"),
+    HostName = Environment.GetEnvironmentVariable("RMQ_HOST"),
+    Port = Int32.Parse(Environment.GetEnvironmentVariable("RMQ_PORT"))
+};
 
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
