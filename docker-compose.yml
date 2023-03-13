@@ -10,8 +10,6 @@ services:
     environment:
         RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
         RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
-    networks:
-        - rabbitmq_go_net
 
   producerapi:
     image: ${DOCKER_REGISTRY-}producerapi
@@ -25,8 +23,6 @@ services:
       - RMQ_PORT=${RABBITMQ_DEFAULT_PORT:-5672}
     depends_on:
       - rabbitmq
-    networks:
-        - rabbitmq_go_net
 
   consumerapp:
     image: ${DOCKER_REGISTRY-}consumerapp
@@ -40,9 +36,3 @@ services:
       - RMQ_PORT=${RABBITMQ_DEFAULT_PORT:-5672}
     depends_on:
       - rabbitmq
-    networks:
-        - rabbitmq_go_net
-
-networks:
-  rabbitmq_go_net:
-    driver: bridge
